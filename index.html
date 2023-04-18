@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <form id="form">
+            <input type="text" id="query" placeholder="Search for podcasts">
+            <input type="submit" value="Search" id="search">
+        </form>
+
+        <br />
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const sendRequest = async (url, data) => {
+            const response = await fetch(url, {
+                mode: "cors",
+                method: "post",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            return await response.json();
+        };
+
+        document.getElementById("search").addEventListener("click", async e => {
+            e.preventDefault();
+
+            // step 1. search
+            const searchData = {
+                "query": {
+                    "query_string": {
+                        "query": document.getElementById("query").value,
+                        "fields": ["results.alternatives.transcript", "results.alternatives.words.word"]
+                    }
+                },
+                "highlight": {
+                    "order": "score",
+                    "fields": {
+                        "results.alternatives.transcript": {
+                            "fragment_size": 300,
+                            "number_of_fragments": 5
+                        }
+                    }
+                },
+                "_source": false
+            };
+
+            const data = await sendRequest("http://127.0.0.1:9200/podcasts/_search", searchData);
+            console.log(data);
+
+            // step 2. print out all episodes
+            for (episode of data.hits.hits) {
+                console.log(episode);
+
+                const id = episode._id;
+                console.log(episode.highlight);
+                document.getElementById("results").innerHTML += "ID: " + id + "<br />";
+                document.getElementById("results").innerHTML += "HIGHLIGHTS: <br />";
+                for (highlight of episode.highlight["results.alternatives.transcript"]) {
+                    document.getElementById("results").innerHTML += "<ul>" + highlight + "</ul>";
+                }
+                document.getElementById("results").innerHTML += "<br /> <br /> <br />";
+            }
+        });
+    </script>
+
+</body>
+
+</html>
