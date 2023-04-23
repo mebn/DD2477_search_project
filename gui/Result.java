@@ -4,8 +4,8 @@ public class Result {
     * Here we can have timestamps, podcast name and other search result data
     *
     * */
-    public Result() {
-        this.filename = "Sample text";
+    public Result(String text) {
+        this.filename = text;
     }
 
     @Override
