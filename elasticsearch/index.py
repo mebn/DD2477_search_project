@@ -19,6 +19,7 @@ METADATA_SET = "metadata-summarization-testset.tsv" # testset
 
 # the index to save documents
 PODCASTS_INDEX = "podcasts"
+EPISODES_INDEX = "episodes"
 METADATA_INDEX = "metadata"
 
 # url of elasticsearch from docker, most likely "http://localhost:9200"
@@ -33,7 +34,7 @@ METADATA_PATH = SPOTIFY_PODCASTS_2020 + METADATA_SET
 
 def main():
     index_metadata()
-    # index_episodes()
+    index_episodes()
 
 
 # podcast episode id as _doc id
@@ -54,21 +55,29 @@ def index_metadata():
     print(count)
 
 
-# go throught every file in every subdir and
-# PUT json file to elasticsearch with filename as id
 def index_episodes():
     count = 0
     for root, dirs, files in os.walk(PODCASTS_PATH):
         for name in files:
             if name.endswith((".json")):
-                with open(f"{root}/{name}", "rb") as f:
-                    data = f.read()
+                with open(f"{root}/{name}", "r") as f:
+                    data = json.loads(f.read())
                     id = os.path.splitext(name)[0]
-                    res = insert(PODCASTS_INDEX, id, data)
-                    if count % 100 == 0:
-                        print(id, res)
-                    count += 1
-    print(count)
+
+                    # index each ~30s transcript into a seperate document
+                    # and skip entries with no transcripts
+                    i = 0
+                    for alt in data["results"]:
+                        alt = alt["alternatives"][0]
+
+                        if "transcript" in alt:
+                            res = insert(EPISODES_INDEX, f"{id}_{i}", json.dumps(alt))
+                            i += 1
+                            count += 1
+                            
+                    print(id, res)
+
+    print(f"Indexed {count} documents")
 
 
 def insert(index, id, data):

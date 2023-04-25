@@ -1,6 +1,7 @@
 # Elasticsearch
 
 ## Docker image
+<!--
 ### Commit changes to new docker image
 You don't have to do this step, i've already done it.
 
@@ -53,20 +54,38 @@ docker start elasticsearch_100gb_container
 # stop
 docker stop elasticsearch_100gb_container
 ```
+-->
 
-## Connect to elasticsearch
+### Testset docker image
+This is for the 1 gb elasticsearch database. Docker image is ~5gb. Run these commands:
+
+```
+docker pull mebn/elasticsearch_1gb
+docker run --name elasticsearch_1gb_container -p 9200:9200 -p 9300:9300 -t mebn/elasticsearch_1gb:latest
+```
+
+To start and stop after running the commands above, run:
+```
+# start
+docker start elasticsearch_1gb_container
+# stop
+docker stop elasticsearch_1gb_container
+```
+
+## Connect to elasticsearch locally
 You can use postman, insomnia or something similar for testing.
 
 ### Get a specific document
-GET request to `http://localhost:9200/podcasts/_doc/4EXzSCiNj5DpQVavxZOW5Y`.
+GET request to `http://localhost:9200/episodes/_doc/4EXzSCiNj5DpQVavxZOW5Y_0`, where `_0` can be any number.
 
 ### Search
-GET request to `http://localhost:9200/podcasts/_search` with json body:
+GET request to `http://localhost:9200/episodes/_search` with json body:
+
 ```json
 {
   "query" : {
     "match" : {
-      "results.alternatives.transcript": "Cairo"
+      "transcript": "terrorist"
     }
   }
 }
