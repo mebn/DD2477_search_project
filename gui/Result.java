@@ -1,16 +1,42 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class Result {
-    private String filename;
+
+    String _index;
+    String _id;
+    double _score;
+    String[] _ignored;
+    SourceObject _source;
+
+    public class SourceObject {
+        ResultObject[] results; // Will this always be one-long????
+
+        public class ResultObject {
+            Alternative[] alternatives;
+
+            public class Alternative {
+                String transcript;
+                double confidence;
+                WordHit[] words;
+                public class WordHit {
+                    String startTime;
+                    String endTime;
+                    String word;
+                }
+            }
+        }
+
+    }
+
     /*
-    * Here we can have timestamps, podcast name and other search result data
+    * Generated from response JSON representing each individual result
     *
     * */
-    public Result(String text) {
-        this.filename = text;
-    }
 
     @Override
     public String toString() {
-        // This is used to display the search result in the scroll-pane
-        return this.filename;
+        Gson gson = new GsonBuilder().create();
+        return gson.toJson(this);
     }
 }

@@ -1,3 +1,6 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -43,8 +46,6 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public ArrayList<Result> search(String text) throws Exception{
-        // TODO: connect to elasticsearch api
-
         String body = "{\n" +
                 "  \"query\" : {\n" +
                 "    \"match\" : {\n" +
@@ -53,7 +54,7 @@ public class MainFrame extends JFrame implements ActionListener {
                 "  }\n" +
                 "}";
 
-        URL url = new URL("http://localhost:9200/podcasts/_search");
+        URL url = new URL("http://localhost:9200/podcasts/_search"); // Change this to the Azure, depending on GUI option
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setRequestMethod("GET");
         httpConn.setRequestProperty("Content-Type", "application/json");
@@ -66,18 +67,24 @@ public class MainFrame extends JFrame implements ActionListener {
         out.flush();
         out.close();
         httpConn.connect();
+        // Sends the request to the server
 
         ArrayList<Result> results = new ArrayList<>();
 
         if(httpConn.getResponseCode() == 200) {
+            // Success, attempt to deserialize
             System.out.println("Success");
             BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
-            StringBuilder sb = new StringBuilder();
-            String output;
-            while ((output = br.readLine()) != null) {
-                System.out.println(output.substring(0, 500));
-                results.add(new Result(output));
+            Gson gson = new GsonBuilder().create();
+            String json = br.readLine();
+            System.out.println(json);
+            Response res = gson.fromJson(json, Response.class);
+            Result[] hits = res.getHits();
+            for(Result rs : hits) {
+                results.add(rs);
             }
+
+            System.out.println(res.toString());
         } else {
             System.out.println("Unsuccess");
         }
