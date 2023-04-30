@@ -1,10 +1,10 @@
 package org.interaction;
 
-public class Query {
+public class LocalQuery {
     private String query;
     private int n;
 
-    public Query(String query, int n){
+    public LocalQuery(String query, int n){
         this.query = query;
         this.n = n;
     }
