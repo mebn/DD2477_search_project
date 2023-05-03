@@ -9,14 +9,16 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class Engine {
-    public static void main(String[] args ){
+    public static ElasticSearchClient client = null;
+
+    public static void initSearcher(){
         String host = "20.223.162.103";
         int port  = 9200;
         int groupType = 0;
-        ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
+        client = new ElasticSearchClient(host,port);
         LocalQuery query = new LocalQuery("coronavirus spread",2);
-        SearchResponse searchResponse = elasticSearchClient.search(query);
-        ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
+        SearchResponse searchResponse = client.search(query);
+        ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(client,groupType);
         ArrayList<OneResult> results = eSresponseProcessor.group(searchResponse,query);
         Collections.sort(results,Collections.reverseOrder());
     }

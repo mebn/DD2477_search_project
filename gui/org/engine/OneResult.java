@@ -25,8 +25,17 @@ public class OneResult implements Comparable<OneResult>{
         this.score = score;
     }
 
+    public String getTranscript() {
+        return transcript;
+    }
+
     @Override
     public int compareTo(OneResult o) {
         return Double.compare(score, o.score);
+    }
+
+    @Override
+    public String toString() {
+        return docId + " " + docName;
     }
 }

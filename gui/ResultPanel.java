@@ -3,10 +3,13 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
+import org.engine.OneResult;
+
 public class ResultPanel extends JPanel {
-    private ArrayList<Result> results; // Might not be useful, maybe just update the contents of the innerpanel
+    private ArrayList<OneResult> results; // Might not be useful, maybe just update the contents of the innerpanel
     private JScrollPane resultPane;
     private JPanel innerPanel;
+    private MouseAdapter mouseAdapter = new MouseAdapter();
 
     // Initialize the ResultPanel
     public ResultPanel() {
@@ -20,12 +23,13 @@ public class ResultPanel extends JPanel {
         this.setBorder( new EtchedBorder() );
     }
 
-    public void updateResults( ArrayList<Result> results ) {
+    public void updateResults( ArrayList<OneResult> results ) {
         // Update the results list after a search has been completed
         this.results = results;
         this.innerPanel.removeAll();
-        for( Result r : this.results ) {
-            JLabel label = new JLabel(r.toString());
+        for( OneResult r : this.results ) {
+            ResultLabel label = new ResultLabel(r);
+            label.addMouseListener(mouseAdapter);
             this.innerPanel.add(label);
         }
 

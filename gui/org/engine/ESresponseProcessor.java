@@ -20,7 +20,7 @@ public class ESresponseProcessor {
         this.ESclient = ESclient;
     }
 
-    ArrayList<OneResult> group(SearchResponse searchResponse, LocalQuery localQuery){
+    public ArrayList<OneResult> group(SearchResponse searchResponse, LocalQuery localQuery){
         ArrayList<OneResult> results = null;
         SearchHits hits = searchResponse.getHits();
         SearchHit[] searchHits = hits.getHits();

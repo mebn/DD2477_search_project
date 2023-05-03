@@ -14,9 +14,19 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+
+
+import org.engine.ESresponseProcessor;
+import org.engine.Engine;
+import org.engine.OneResult;
+import org.interaction.LocalQuery;
+import org.elasticsearch.action.search.SearchResponse;
+
 
 public class MainFrame extends JFrame implements ActionListener {
     public static void main(String[] args) {
+        Engine.initSearcher();
         MainFrame frame = new MainFrame();
         frame.setSize(new Dimension(1000,1000));
         frame.setVisible(true);
@@ -43,6 +53,20 @@ public class MainFrame extends JFrame implements ActionListener {
 
         // Stops execution when the window is closed
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    private static final int TYPE = 0;
+
+    public ArrayList<OneResult> searchMerged(String text) throws Exception{
+        // From podcast-code by Shuang
+        int n = 2;
+        LocalQuery query = new LocalQuery(text, n);
+        SearchResponse res = Engine.client.search(query);
+        ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
+        ArrayList<OneResult> results = resProcessor.group(res, query);
+        Collections.sort(results,Collections.reverseOrder());
+
+        return results;
     }
 
     public ArrayList<Result> search(String text) throws Exception{
@@ -99,9 +123,9 @@ public class MainFrame extends JFrame implements ActionListener {
             // Retrieve the search text
             String text = this.searchPanel.getSearchText();
             System.out.println("Searching for: " + text);
-            ArrayList<Result> results = null;
+            ArrayList<OneResult> results = null;
             try {
-                results = search(text);
+                results = searchMerged(text);
             } catch (Exception e) {
                 e.printStackTrace();
                 results = new ArrayList<>();
