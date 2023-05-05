@@ -29,4 +29,8 @@ public class OneResult implements Comparable<OneResult>{
     public int compareTo(OneResult o) {
         return Double.compare(score, o.score);
     }
+
+    public Object getTranscript() {
+        return transcript;
+    }
 }

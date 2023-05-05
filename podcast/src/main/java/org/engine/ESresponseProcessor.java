@@ -21,7 +21,20 @@ public class ESresponseProcessor {
         this.ESclient = ESclient;
     }
 
-    ArrayList<OneResult> group(SearchResponse searchResponse, LocalQuery localQuery){
+    ArrayList<OneTranscriptSegment> groupFix(SearchResponse searchResponse, LocalQuery localQuery){
+        ArrayList<OneTranscriptSegment> results = null;
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for(SearchHit hit : searchHits) {
+            String[] ids = hit.getId().split("_");
+            String docId = ids[0];
+            OneTranscriptSegment oneTranscriptSegment = processSegment(hit);
+            results.add(oneTranscriptSegment);
+        }
+        return results;
+    }
+
+    public ArrayList<OneResult> group(SearchResponse searchResponse, LocalQuery localQuery){
         ArrayList<OneResult> results = null;
         SearchHits hits = searchResponse.getHits();
         SearchHit[] searchHits = hits.getHits();

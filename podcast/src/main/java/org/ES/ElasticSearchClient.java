@@ -53,6 +53,23 @@ public class ElasticSearchClient {
         return searchResponse;
     }
 
+    public SearchResponse searchFix(LocalQuery query){
+        SearchResponse searchResponse = null;
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("episodes_2min");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
+        searchSourceBuilder.query(queryBuilder);
+        searchRequest.source(searchSourceBuilder);
+        try {
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+//            System.out.println("Successful response");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return searchResponse;
+    }
+
     public GetResponse getTranscript(String docId,String segId) {
         GetResponse getResponse = null;
         String id = docId+"_"+segId;

@@ -1,6 +1,6 @@
 package org.engine;
 
-public class OneTranscriptSegment {
+public class OneTranscriptSegment implements Comparable<OneTranscriptSegment>{
     String docId;
 
     String segId;
@@ -18,6 +18,11 @@ public class OneTranscriptSegment {
         this.endTime = endTime;
         this.transcript = transcript;
         this.score = score;
+    }
+
+    @Override
+    public int compareTo(OneTranscriptSegment o) {
+        return Double.compare(score, o.score);
     }
 
 }
