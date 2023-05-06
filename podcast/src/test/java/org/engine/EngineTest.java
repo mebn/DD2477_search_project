@@ -25,25 +25,25 @@ import java.util.HashMap;
  * Unit test for simple App.
  */
 public class EngineTest{
-    public static HashMap<String, ArrayList<Tuple<String,String>>> readListFile(String filename){
-        HashMap<String, ArrayList<Tuple<String,String>>> result = new HashMap<>();
+    public static HashMap<String, ArrayList<TestLabel>> readListFile(String filename){
+        HashMap<String, ArrayList<TestLabel>> result = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = reader.readLine();
             while (line != null) {
 //                System.out.println(line);
-                String[] words = line.split("\\\\s+|\t");
+                String[] words = line.split("(\\s+|\t)");
                 if(!result.containsKey(words[0])){
-                    ArrayList<Tuple<String,String>> oneResult = new ArrayList<>();
+                    ArrayList<TestLabel> oneResult = new ArrayList<>();
                     try{
-                        oneResult.add(new Tuple<>(words[2].split(":")[2],words[3]));
+                        oneResult.add(new TestLabel(words[2].split(":")[2],Double.parseDouble(words[3])));
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                     result.put(words[0],oneResult);
                 }
                 else{
-                    result.get(words[0]).add(new Tuple<>(words[2].split(":")[2],words[3]));
+                    result.get(words[0]).add(new TestLabel(words[2].split(":")[2],Double.parseDouble(words[3])));
                 }
                 line = reader.readLine();
 
@@ -84,7 +84,7 @@ public class EngineTest{
         return testCases;
     }
 
-    public static void main(String[] args ) {
+    public static void main(String[] args ) throws IOException {
         String queryFileName1 = "./evaluation/podcasts_2020_topics_train.xml";
         String queryFileName2 = "./evaluation/podcasts_2020_topics_test.xml";
         String labelFileName1 = "./evaluation/2020_train_qrels.list";
@@ -93,8 +93,8 @@ public class EngineTest{
         ArrayList<TestCase> testCases = readXmlFile(queryFileName1);
         ArrayList<TestCase> testCases2 = readXmlFile(queryFileName2);
         testCases.addAll(testCases2);
-        HashMap<String, ArrayList<Tuple<String,String>>> labels = readListFile(labelFileName1);
-        HashMap<String, ArrayList<Tuple<String,String>>> labels2 = readListFile(labelFileName2);
+        HashMap<String, ArrayList<TestLabel>> labels = readListFile(labelFileName1);
+        HashMap<String, ArrayList<TestLabel>> labels2 = readListFile(labelFileName2);
         labels.putAll(labels2);
         String host = "20.223.162.103";
         int port  = 9200;
@@ -106,7 +106,26 @@ public class EngineTest{
             ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
             ArrayList<OneTranscriptSegment> results = eSresponseProcessor.groupFix(searchResponse,query);
             Collections.sort(results,Collections.reverseOrder());
+            ArrayList<String> rankedResults = new ArrayList<>();
+            for(OneTranscriptSegment oneTranscriptSegment:results){
+                String segName = String.valueOf(Integer.parseInt(oneTranscriptSegment.segId)*60.0);
+                String newName = oneTranscriptSegment.docId+"_"+segName;
+                rankedResults.add(newName);
+            }
+            ArrayList<TestLabel> correctSegments = labels.get(testCase.num);
+            if(correctSegments==null){
+                continue;
+            }
+            Collections.sort(correctSegments,Collections.reverseOrder());
+            ArrayList<String> correctResults = new ArrayList<>();
+            for(TestLabel testLabel:correctSegments){
+                correctResults.add(testLabel.segId);
+            }
+            double ndcg = NDCG.compute(rankedResults,correctResults);
+            System.out.println(testCase.num);
+            System.out.println(ndcg);
         }
+        elasticSearchClient.close();
 
     }
 

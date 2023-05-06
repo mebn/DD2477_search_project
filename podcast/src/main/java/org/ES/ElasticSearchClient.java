@@ -36,6 +36,10 @@ public class ElasticSearchClient {
                 .build();
     }
 
+    public void close() throws IOException {
+        restHighLevelClient.close();
+    }
+
     public SearchResponse search(LocalQuery query){
         SearchResponse searchResponse = null;
         SearchRequest searchRequest = new SearchRequest();

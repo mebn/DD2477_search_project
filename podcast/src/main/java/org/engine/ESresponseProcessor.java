@@ -22,7 +22,7 @@ public class ESresponseProcessor {
     }
 
     ArrayList<OneTranscriptSegment> groupFix(SearchResponse searchResponse, LocalQuery localQuery){
-        ArrayList<OneTranscriptSegment> results = null;
+        ArrayList<OneTranscriptSegment> results = new ArrayList<>();
         SearchHits hits = searchResponse.getHits();
         SearchHit[] searchHits = hits.getHits();
         for(SearchHit hit : searchHits) {
