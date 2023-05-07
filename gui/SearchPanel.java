@@ -10,6 +10,7 @@ public class SearchPanel extends JPanel {
     public SearchPanel(MainFrame mainFrame) {
         this.searchText = new JTextField();
         this.searchText.setPreferredSize(new Dimension(800, 32));
+        this.searchText.addActionListener(mainFrame);
         this.add(searchText);
 
         this.button = new JButton("Search");
@@ -24,5 +25,8 @@ public class SearchPanel extends JPanel {
     // Get the search button. Used for checking the origin of Action Events
     public JButton getSearchButton() {
         return this.button;
+    }
+    public JTextField getTextField() {
+        return this.searchText;
     }
 }

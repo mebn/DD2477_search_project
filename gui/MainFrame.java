@@ -76,7 +76,7 @@ public class MainFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent ae) {
         // Called when a button press is registered
-        if(ae.getSource().equals(this.searchPanel.getSearchButton())) {
+        if(ae.getSource().equals(this.searchPanel.getSearchButton()) || ae.getSource().equals(this.searchPanel.getTextField())) {
             // Retrieve the search text
             String text = this.searchPanel.getSearchText();
             System.out.println("Searching for: " + text);
@@ -97,6 +97,7 @@ public class MainFrame extends JFrame implements ActionListener {
             try {
                 int newN = Integer.valueOf(userInput);
                 this.N = newN;
+                this.changeN.setText("N = " + this.N + ", click to change");
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "N needs to be a whole number", "Wrong input", JOptionPane.ERROR_MESSAGE);
             }
