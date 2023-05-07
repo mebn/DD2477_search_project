@@ -63,7 +63,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
     private static final int TYPE = 0;
 
-    public ArrayList<OneResult> searchMerged(String text) throws Exception{
+    public ArrayList<OneResult> search(String text) throws Exception{
         long startTime = System.currentTimeMillis();
         // From podcast-code by Shuang
         LocalQuery query = new LocalQuery(text, this.N);
@@ -76,53 +76,6 @@ public class MainFrame extends JFrame implements ActionListener {
         return results;
     }
 
-    public ArrayList<Result> search(String text) throws Exception{
-        String body = "{\n" +
-                "  \"query\" : {\n" +
-                "    \"match\" : {\n" +
-                "      \"results.alternatives.transcript\": \"" + text + "\"\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
-
-        URL url = new URL("http://localhost:9200/podcasts/_search"); // Change this to the Azure, depending on GUI option
-        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-        httpConn.setRequestMethod("GET");
-        httpConn.setRequestProperty("Content-Type", "application/json");
-        httpConn.setRequestProperty("Content-Length", Integer.toString(body.getBytes(StandardCharsets.UTF_8).length));
-        httpConn.setDoOutput(true);
-        httpConn.setDoInput(true);
-        DataOutputStream out = new DataOutputStream(httpConn.getOutputStream());
-
-        out.write(body.getBytes(StandardCharsets.UTF_8));
-        out.flush();
-        out.close();
-        httpConn.connect();
-        // Sends the request to the server
-
-        ArrayList<Result> results = new ArrayList<>();
-
-        if(httpConn.getResponseCode() == 200) {
-            // Success, attempt to deserialize
-            System.out.println("Success");
-            BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
-            Gson gson = new GsonBuilder().create();
-            String json = br.readLine();
-            System.out.println(json);
-            Response res = gson.fromJson(json, Response.class);
-            Result[] hits = res.getHits();
-            for(Result rs : hits) {
-                results.add(rs);
-            }
-
-            System.out.println(res.toString());
-        } else {
-            System.out.println("Unsuccess");
-        }
-        System.out.println(httpConn.getResponseMessage());
-        return results;
-    }
-
     @Override
     public void actionPerformed(ActionEvent ae) {
         // Called when a button press is registered
@@ -132,7 +85,7 @@ public class MainFrame extends JFrame implements ActionListener {
             System.out.println("Searching for: " + text);
             ArrayList<OneResult> results = null;
             try {
-                results = searchMerged(text);
+                results = search(text);
             } catch (Exception e) {
                 e.printStackTrace();
                 results = new ArrayList<>();
