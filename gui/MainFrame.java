@@ -40,6 +40,9 @@ public class MainFrame extends JFrame implements ActionListener {
 
     // Not currently used, can be used for search options
     private JMenuBar menuBar;
+    private JMenuItem changeN;
+
+    public int N = 2;
 
     // Initialize the window
     public MainFrame() {
@@ -47,6 +50,9 @@ public class MainFrame extends JFrame implements ActionListener {
         this.searchPanel = new SearchPanel(this);
         this.resultPanel = new ResultPanel();
         this.menuBar = new JMenuBar();
+        this.changeN = new JMenuItem("N = " + this.N + ", click to change");
+        this.changeN.addActionListener(this);
+        this.menuBar.add(changeN);
         this.setJMenuBar(this.menuBar);
         this.add(this.searchPanel, BorderLayout.PAGE_START);
         this.add(this.resultPanel, BorderLayout.CENTER);
@@ -58,14 +64,15 @@ public class MainFrame extends JFrame implements ActionListener {
     private static final int TYPE = 0;
 
     public ArrayList<OneResult> searchMerged(String text) throws Exception{
+        long startTime = System.currentTimeMillis();
         // From podcast-code by Shuang
-        int n = 2;
-        LocalQuery query = new LocalQuery(text, n);
+        LocalQuery query = new LocalQuery(text, this.N);
         SearchResponse res = Engine.client.search(query);
         ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
         ArrayList<OneResult> results = resProcessor.group(res, query);
         Collections.sort(results,Collections.reverseOrder());
 
+        System.out.println("Searching for " + text + " took " + (System.currentTimeMillis()-startTime) + "ms and found " + results.size() + " results");
         return results;
     }
 
@@ -133,6 +140,14 @@ public class MainFrame extends JFrame implements ActionListener {
 
             // Updates the GUI with the results
             resultPanel.updateResults(results);
+        } else if (ae.getSource() == this.changeN){
+            String userInput = JOptionPane.showInputDialog("Enter new N:");
+            try {
+                int newN = Integer.valueOf(userInput);
+                this.N = newN;
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "N needs to be a whole number", "Wrong input", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }
