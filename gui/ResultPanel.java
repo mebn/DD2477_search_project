@@ -10,6 +10,7 @@ public class ResultPanel extends JPanel {
     private JScrollPane resultPane;
     private JPanel innerPanel;
     private MouseAdapter mouseAdapter = new MouseAdapter();
+    private JLabel timeLabel;
 
     // Initialize the ResultPanel
     public ResultPanel() {
@@ -19,14 +20,19 @@ public class ResultPanel extends JPanel {
 
         this.resultPane = new JScrollPane( this.innerPanel );
         this.resultPane.setLayout(new ScrollPaneLayout());
-        this.add(resultPane);
+        this.setLayout(new BorderLayout());
+        this.add(resultPane, BorderLayout.CENTER);
+        this.timeLabel = new JLabel("Search metrics will go here");
         this.setBorder( new EtchedBorder() );
     }
 
-    public void updateResults( ArrayList<OneResult> results ) {
+    public void updateResults( ArrayList<OneResult> results, long timeMillis) {
         // Update the results list after a search has been completed
         this.results = results;
         this.innerPanel.removeAll();
+        this.remove(this.timeLabel);
+        this.timeLabel = new JLabel("Searching took " + timeMillis + "ms and found " + (results.isEmpty() ? "no" : results.size()) + " results.");
+        this.add(timeLabel, BorderLayout.PAGE_START);
         for( OneResult r : this.results ) {
             ResultLabel label = new ResultLabel(r);
             label.addMouseListener(mouseAdapter);

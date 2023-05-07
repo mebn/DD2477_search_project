@@ -64,15 +64,12 @@ public class MainFrame extends JFrame implements ActionListener {
     private static final int TYPE = 0;
 
     public ArrayList<OneResult> search(String text) throws Exception{
-        long startTime = System.currentTimeMillis();
         // From podcast-code by Shuang
         LocalQuery query = new LocalQuery(text, this.N);
         SearchResponse res = Engine.client.search(query);
         ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
         ArrayList<OneResult> results = resProcessor.group(res, query);
         Collections.sort(results,Collections.reverseOrder());
-
-        System.out.println("Searching for " + text + " took " + (System.currentTimeMillis()-startTime) + "ms and found " + results.size() + " results");
         return results;
     }
 
@@ -84,15 +81,17 @@ public class MainFrame extends JFrame implements ActionListener {
             String text = this.searchPanel.getSearchText();
             System.out.println("Searching for: " + text);
             ArrayList<OneResult> results = null;
+            long startTime = System.currentTimeMillis();
             try {
                 results = search(text);
             } catch (Exception e) {
                 e.printStackTrace();
                 results = new ArrayList<>();
             }
+            long endtime = System.currentTimeMillis();
 
             // Updates the GUI with the results
-            resultPanel.updateResults(results);
+            resultPanel.updateResults(results, endtime - startTime);
         } else if (ae.getSource() == this.changeN){
             String userInput = JOptionPane.showInputDialog("Enter new N:");
             try {
