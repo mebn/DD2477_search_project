@@ -40,10 +40,12 @@ public class ElasticSearchClient {
         restHighLevelClient.close();
     }
 
-    public SearchResponse search(LocalQuery query){
+    public SearchResponse search(String index,LocalQuery query){
         SearchResponse searchResponse = null;
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("episodes");
+        searchRequest.indices(index);
+//        searchRequest.indices("episodes_2min");
+//        searchRequest.indices("episodes");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
         searchSourceBuilder.query(queryBuilder);
@@ -57,31 +59,16 @@ public class ElasticSearchClient {
         return searchResponse;
     }
 
-    public SearchResponse searchFix(LocalQuery query){
-        SearchResponse searchResponse = null;
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("episodes_2min");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
-        searchSourceBuilder.query(queryBuilder);
-        searchRequest.source(searchSourceBuilder);
-        try {
-            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-//            System.out.println("Successful response");
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        return searchResponse;
-    }
-
-    public GetResponse getTranscript(String docId,String segId) {
+    public GetResponse getTranscript(String index,String docId,int segId) {
         GetResponse getResponse = null;
-        String id = docId+"_"+segId;
-        GetRequest getRequest = new GetRequest("episodes",id);
+        String id = docId+"_"+ segId;
+//        GetRequest getRequest = new GetRequest("episodes",id);
+        GetRequest getRequest = new GetRequest(index,id);
         try{
             getResponse = restHighLevelClient.get(getRequest,RequestOptions.DEFAULT);
         } catch (IOException e){
-            e.printStackTrace();
+//            e.printStackTrace();
+            return null;
         }
         return getResponse;
     }

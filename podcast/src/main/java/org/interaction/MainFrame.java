@@ -65,9 +65,8 @@ public class MainFrame extends JFrame implements ActionListener {
         // From podcast-code by Shuang
         int n = 2;
         LocalQuery query = new LocalQuery(text, n);
-        SearchResponse res = Engine.client.search(query);
         ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
-        ArrayList<OneResult> results = resProcessor.group(res, query);
+        ArrayList<OneResult> results = resProcessor.group(query);
         Collections.sort(results,Collections.reverseOrder());
 
         return results;
