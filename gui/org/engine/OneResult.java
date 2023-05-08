@@ -9,6 +9,7 @@ import java.util.Map;
 public class OneResult implements Comparable<OneResult>{
     String docId;
     String docName;
+    String episodeName;
     float startTime;
     float endTime;
 
@@ -16,17 +17,14 @@ public class OneResult implements Comparable<OneResult>{
 
     double score;
 
-    public OneResult(String docId, String docName,float startTime,float endTime,String transcript,double score){
+    public OneResult(String docId, String docName,String episodeName,float startTime,float endTime,String transcript,double score){
         this.docId = docId;
         this.docName = docName;
+        this.episodeName = episodeName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.transcript = transcript;
         this.score = score;
-    }
-
-    public String getTranscript() {
-        return transcript;
     }
 
     @Override
@@ -34,13 +32,16 @@ public class OneResult implements Comparable<OneResult>{
         return Double.compare(score, o.score);
     }
 
-    @Override
-    public String toString() {
-        return docName + " " + timeFormat(startTime) + "-" + timeFormat(endTime);
+    public Object getTranscript() {
+        return transcript;
     }
 
-    private String timeFormat(float time)
-    {
+    @Override
+    public String toString() {
+        return docName + " " + episodeName + " " + timeFormat(startTime) + "-" + timeFormat(endTime);
+    }
+
+    private String timeFormat(float time) {
         String timeStr;
         int minutes = (int)(time / 60.0);
         int seconds = (int)(time % 60.0);

@@ -73,14 +73,17 @@ public class MainFrame extends JFrame implements ActionListener {
         });
     }
 
-    private static final int TYPE = 0;
+    private static final int GROUPTYPE = 0;
 
     public ArrayList<OneResult> search(String text) throws Exception{
+        if(this.N == 1 && this.useSynonyms) {
+            JOptionPane.showMessageDialog(null, "Searching while N = 1 not searchable with synonym search due to indexing");
+            return new ArrayList<>();
+        }
         // From podcast-code by Shuang
         LocalQuery query = new LocalQuery(text, this.N, this.useSynonyms);
-        SearchResponse res = Engine.client.search(query);
-        ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
-        ArrayList<OneResult> results = resProcessor.group(res, query);
+        ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(Engine.client,GROUPTYPE);
+        ArrayList<OneResult> results = eSresponseProcessor.group(query);
         Collections.sort(results,Collections.reverseOrder());
         return results;
     }
@@ -108,10 +111,11 @@ public class MainFrame extends JFrame implements ActionListener {
             String userInput = JOptionPane.showInputDialog("Enter new N:");
             try {
                 int newN = Integer.valueOf(userInput);
+                if(newN <= 0) throw new IllegalArgumentException("N is too small");
                 this.N = newN;
                 this.changeN.setText("N = " + this.N + ", click to change");
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "N needs to be a whole number", "Wrong input", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "N needs to be a whole number, at least 1", "Wrong input", JOptionPane.ERROR_MESSAGE);
             }
         }
         else if (ae.getSource() == this.toggleSynonym){

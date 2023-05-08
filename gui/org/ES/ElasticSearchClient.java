@@ -10,6 +10,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.RestHighLevelClientBuilder;
+import org.elasticsearch.core.Tuple;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -36,13 +37,25 @@ public class ElasticSearchClient {
                 .build();
     }
 
-    public SearchResponse search(LocalQuery query){
+    public void close() throws IOException {
+        restHighLevelClient.close();
+    }
+
+    public SearchResponse search(String index,LocalQuery query){
         SearchResponse searchResponse = null;
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices("episodes");
+        searchRequest.indices(index);
+//        searchRequest.indices("episodes_2min");
+//        searchRequest.indices("episodes");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
+        QueryBuilder queryBuilder;
+        if(query.useSynonyms()) {
+            queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript").analyzer("my_analyzer");
+        } else {
+            queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
+        }
         searchSourceBuilder.query(queryBuilder);
+//        searchSourceBuilder.size(1000);
         searchRequest.source(searchSourceBuilder);
         try {
             searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
@@ -53,29 +66,33 @@ public class ElasticSearchClient {
         return searchResponse;
     }
 
-    public GetResponse getTranscript(String docId,String segId) {
+    public GetResponse getTranscript(String index,String docId,int segId) {
         GetResponse getResponse = null;
-        String id = docId+"_"+segId;
-        GetRequest getRequest = new GetRequest("episodes",id);
+        String id = docId+"_"+ segId;
+//        GetRequest getRequest = new GetRequest("episodes",id);
+        GetRequest getRequest = new GetRequest(index,id);
         try{
             getResponse = restHighLevelClient.get(getRequest,RequestOptions.DEFAULT);
         } catch (IOException e){
-            e.printStackTrace();
+//            e.printStackTrace();
+            return null;
         }
         return getResponse;
     }
 
-    public String getDocName(String docId) {
+    public Tuple<String,String> getDocNames(String docId) {
         GetResponse getResponse = null;
         String docName = null;
+        String episodeName = null;
         GetRequest getRequest = new GetRequest("metadata",docId);
         try{
             getResponse = restHighLevelClient.get(getRequest,RequestOptions.DEFAULT);
             docName  = getResponse.getSourceAsMap().get("show_name").toString();
+            episodeName  = getResponse.getSourceAsMap().get("episode_name").toString();
         } catch (IOException e){
             e.printStackTrace();
         }
-        return docName;
+        return new Tuple(docName,episodeName);
     }
 
 

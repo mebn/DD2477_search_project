@@ -7,7 +7,7 @@ public class DetailedResultsFrame extends JFrame {
     public DetailedResultsFrame(OneResult res) {
         this.setLayout(new BorderLayout());
 
-        JLabel transcript = new JLabel("<html><p style=\"width:200px; margin: auto;\">"+res.getTranscript()+"</p></html>");
+        JLabel transcript = new JLabel("<html><p style=\"width:400px; margin: auto;\">"+res.getTranscript()+"</p></html>");
         this.add(transcript, BorderLayout.CENTER);
 
         JLabel title = new JLabel(res.toString());
@@ -16,6 +16,6 @@ public class DetailedResultsFrame extends JFrame {
         this.setTitle("Detailed Results");
 
         this.setVisible(true);
-        this.setSize(new Dimension(400, 400));
+        this.setSize(new Dimension(600, 500));
     }
 }

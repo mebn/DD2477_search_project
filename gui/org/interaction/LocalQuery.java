@@ -3,12 +3,12 @@ package org.interaction;
 public class LocalQuery {
     private String query;
     private int n;
-    private boolean useSynonym;
+    private boolean useSynonyms;
 
-    public LocalQuery(String query, int n, boolean useSynonym){
+    public LocalQuery(String query, int n, boolean useSynonyms){
         this.query = query;
         this.n = n;
-        this.useSynonym = useSynonym;
+        this.useSynonyms = useSynonyms;
     }
 
     public String getQuery(){
@@ -19,5 +19,7 @@ public class LocalQuery {
         return this.n;
     }
 
-    public boolean useSynonym() { return this.useSynonym; }
+    public boolean useSynonyms() {
+        return this.useSynonyms;
+    }
 }
