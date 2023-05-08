@@ -13,10 +13,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,30 +97,41 @@ public class EngineTest{
         int port  = 9200;
         int groupType = 0;
         ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
-        for(TestCase testCase:testCases){
-            LocalQuery query = new LocalQuery(testCase.query,2);
-            SearchResponse searchResponse = elasticSearchClient.searchFix(query);
-            ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
-            ArrayList<OneTranscriptSegment> results = eSresponseProcessor.groupFix(searchResponse,query);
-            Collections.sort(results,Collections.reverseOrder());
-            ArrayList<String> rankedResults = new ArrayList<>();
-            for(OneTranscriptSegment oneTranscriptSegment:results){
-                String segName = String.valueOf(Integer.parseInt(oneTranscriptSegment.segId)*60.0);
-                String newName = oneTranscriptSegment.docId+"_"+segName;
-                rankedResults.add(newName);
+        String fileName = "ndcg1.txt";
+        try {
+            FileWriter writer = new FileWriter(fileName);
+            for(TestCase testCase:testCases){
+                LocalQuery query = new LocalQuery(testCase.query,2);
+                SearchResponse searchResponse = elasticSearchClient.search("episodes_2min",query);
+                ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
+                ArrayList<OneTranscriptSegment> results = eSresponseProcessor.groupFix(searchResponse,query);
+                Collections.sort(results,Collections.reverseOrder());
+                ArrayList<String> rankedResults = new ArrayList<>();
+                for(OneTranscriptSegment oneTranscriptSegment:results){
+                    String segName = String.valueOf(Integer.parseInt(oneTranscriptSegment.segId)*60.0);
+                    String newName = oneTranscriptSegment.docId+"_"+segName;
+                    rankedResults.add(newName);
+                    writer.write(testCase.num+" "+newName+"\n");
+                }
+                ArrayList<TestLabel> correctSegments = labels.get(testCase.num);
+                if(correctSegments==null){
+                    continue;
+                }
+                Collections.sort(correctSegments,Collections.reverseOrder());
+                ArrayList<String> correctResults = new ArrayList<>();
+                for(TestLabel testLabel:correctSegments){
+                    correctResults.add(testLabel.segId);
+                }
+                double ndcg = NDCG.compute(rankedResults,correctResults);
+                System.out.println(testCase.num);
+                System.out.println(ndcg);
+                writer.write(testCase.num+" "+ndcg+"\n");
             }
-            ArrayList<TestLabel> correctSegments = labels.get(testCase.num);
-            if(correctSegments==null){
-                continue;
-            }
-            Collections.sort(correctSegments,Collections.reverseOrder());
-            ArrayList<String> correctResults = new ArrayList<>();
-            for(TestLabel testLabel:correctSegments){
-                correctResults.add(testLabel.segId);
-            }
-            double ndcg = NDCG.compute(rankedResults,correctResults);
-            System.out.println(testCase.num);
-            System.out.println(ndcg);
+            writer.close(); // closing the file writer
+            System.out.println("Successfully wrote to " + fileName);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
         elasticSearchClient.close();
 

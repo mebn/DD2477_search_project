@@ -168,7 +168,7 @@ public class ESresponseProcessor {
         return null;
     }
 
-    public OneResult expandSegment(String index,OneTranscriptSegment oneTranscriptSegment,int seconds,String docId,String docName){
+    public OneResult expandSegment(String index,OneTranscriptSegment oneTranscriptSegment,int seconds,String docId,String docName,String episodeName){
         StringBuilder transcripts = new StringBuilder();
         int nowSegid = Integer.parseInt(oneTranscriptSegment.segId);
         float nowStartTime = oneTranscriptSegment.startTime;
@@ -191,8 +191,14 @@ public class ESresponseProcessor {
         }
         if(lastSegid>=0) {
             halfNeedSeconds = needSeconds / 2;
-            lastStartTime -= halfNeedSeconds;
-            nextEndTime += halfNeedSeconds;
+            if (lastStartTime-halfNeedSeconds>=0){
+                lastStartTime -= halfNeedSeconds;
+                nextEndTime += halfNeedSeconds;
+            }
+            else{
+                lastStartTime = 0;
+                nextEndTime += halfNeedSeconds+(halfNeedSeconds-lastStartTime);
+            }
             while ((halfNeedSeconds > 0)&&(lastSegid>0)) {
                 GetResponse lastResponse = ESclient.getTranscript(index, oneTranscriptSegment.docId, lastSegid);
                 Tuple<Float, Float> segTimes = getSegmentTimes(lastResponse);
@@ -266,14 +272,16 @@ public class ESresponseProcessor {
                 }
             }
         }
-        return new OneResult(docId, docName,lastStartTime, nextEndTime, transcripts.toString(), nowScore);
+        return new OneResult(docId, docName,episodeName,lastStartTime, nextEndTime, transcripts.toString(), nowScore);
     }
 
     public ArrayList<OneResult> groupSegmentsWithNminutes(HashMap<String,ArrayList<OneTranscriptSegment>> segmentsMap,LocalQuery query){
         ArrayList<OneResult> results = new ArrayList<>();
         int seconds = query.getN()*60;
         for(String docId:segmentsMap.keySet()) {
-            String docName = ESclient.getDocName(docId);
+            Tuple<String,String> names = ESclient.getDocNames(docId);
+            String docName = names.v1();
+            String episodeName = names.v2();
             ArrayList<OneTranscriptSegment> oneTranscriptSegments = segmentsMap.get(docId);
             StringBuilder transcripts = new StringBuilder();
             for (OneTranscriptSegment oneTranscriptSegment : oneTranscriptSegments) {
@@ -283,14 +291,15 @@ public class ESresponseProcessor {
                 double nowScore = oneTranscriptSegment.score;
                 float lastStartTime = nowStartTime;
                 float nextEndTime = nowEndTime;
+                transcripts.append(oneTranscriptSegment.transcript);
                 if(seconds==120){
-                    results.add(new OneResult(docId, docName, lastStartTime, nextEndTime, transcripts.toString(), nowScore));
+                    results.add(new OneResult(docId, docName, episodeName,lastStartTime, nextEndTime, transcripts.toString(), nowScore));
                 }
                 else if(seconds<120){
-                    results.add(expandSegment("episodes",oneTranscriptSegment,seconds,docId, docName));
+                    results.add(expandSegment("episodes",oneTranscriptSegment,seconds,docId, docName,episodeName));
                 }
                 else {
-                    results.add(expandSegment("episodes_2min",oneTranscriptSegment,seconds,docId, docName));
+                    results.add(expandSegment("episodes_2min",oneTranscriptSegment,seconds,docId, docName,episodeName));
                 }
             }
         }
@@ -301,7 +310,9 @@ public class ESresponseProcessor {
         ArrayList<OneResult> results = new ArrayList<>();
         int seconds = query.getN()*60;
         for(String docId:segmentsMap.keySet()){
-            String docName = ESclient.getDocName(docId);
+            Tuple<String,String> names = ESclient.getDocNames(docId);
+            String docName = names.v1();
+            String episodeName = names.v2();
             ArrayList<OneTranscriptSegment> oneTranscriptSegments = segmentsMap.get(docId);
             float minStart = Float.MAX_VALUE;
             float maxEnd = Float.MIN_VALUE;
@@ -317,7 +328,7 @@ public class ESresponseProcessor {
                 transcripts.append(oneTranscriptSegment.transcript);
                 score += oneTranscriptSegment.score;
             }
-            results.add(new OneResult(docId,docName,minStart,maxEnd,transcripts.toString(),score));
+            results.add(new OneResult(docId,docName,episodeName,minStart,maxEnd,transcripts.toString(),score));
         }
         return results;
     }
@@ -326,7 +337,9 @@ public class ESresponseProcessor {
         ArrayList<OneResult> results = new ArrayList<>();
         int seconds = query.getN()*60;
         for(String docId:segmentsMap.keySet()){
-            String docName = ESclient.getDocName(docId);
+            Tuple<String,String> names = ESclient.getDocNames(docId);
+            String docName = names.v1();
+            String episodeName = names.v2();
             ArrayList<OneTranscriptSegment> oneTranscriptSegments = segmentsMap.get(docId);
             StringBuilder transcripts = new StringBuilder();
             double score = 0;
@@ -349,7 +362,7 @@ public class ESresponseProcessor {
                     transcripts.append(oneTranscriptSegment.transcript);
                     score += oneTranscriptSegment.score;
                 }
-                results.add(new OneResult(docId,docName,bound.v1(),bound.v2(),transcripts.toString(),score));
+                results.add(new OneResult(docId,docName,episodeName,bound.v1(),bound.v2(),transcripts.toString(),score));
             }
         }
         return results;

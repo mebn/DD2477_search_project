@@ -27,7 +27,7 @@ public class Engine {
         int port  = 9200;
         int groupType = 2;
         ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
-        LocalQuery query = new LocalQuery("coronavirus spread",1);
+        LocalQuery query = new LocalQuery("coronavirus spread",2);
         ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
         ArrayList<OneResult> results = eSresponseProcessor.group(query);
         Collections.sort(results,Collections.reverseOrder());

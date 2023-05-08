@@ -9,6 +9,7 @@ import java.util.Map;
 public class OneResult implements Comparable<OneResult>{
     String docId;
     String docName;
+    String episodeName;
     float startTime;
     float endTime;
 
@@ -16,9 +17,10 @@ public class OneResult implements Comparable<OneResult>{
 
     double score;
 
-    public OneResult(String docId, String docName,float startTime,float endTime,String transcript,double score){
+    public OneResult(String docId, String docName,String episodeName,float startTime,float endTime,String transcript,double score){
         this.docId = docId;
         this.docName = docName;
+        this.episodeName = episodeName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.transcript = transcript;
