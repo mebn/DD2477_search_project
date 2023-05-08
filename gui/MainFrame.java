@@ -29,6 +29,7 @@ public class MainFrame extends JFrame implements ActionListener {
         Engine.initSearcher();
         MainFrame frame = new MainFrame();
         frame.setSize(new Dimension(1000,1000));
+        frame.setTitle("Podcast Search Engine");
         frame.setVisible(true);
     }
 
@@ -41,8 +42,10 @@ public class MainFrame extends JFrame implements ActionListener {
     // Not currently used, can be used for search options
     private JMenuBar menuBar;
     private JMenuItem changeN;
+    private JMenuItem toggleSynonym;
 
     public int N = 2;
+    public boolean useSynonyms = false;
 
     // Initialize the window
     public MainFrame() {
@@ -53,19 +56,28 @@ public class MainFrame extends JFrame implements ActionListener {
         this.changeN = new JMenuItem("N = " + this.N + ", click to change");
         this.changeN.addActionListener(this);
         this.menuBar.add(changeN);
+        this.toggleSynonym = new JMenuItem("Synonyms disabled, click to change");
+        this.toggleSynonym.addActionListener(this);
+        this.menuBar.add(toggleSynonym);
         this.setJMenuBar(this.menuBar);
         this.add(this.searchPanel, BorderLayout.PAGE_START);
         this.add(this.resultPanel, BorderLayout.CENTER);
 
         // Stops execution when the window is closed
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                System.exit(0);
+            }
+        });
     }
 
     private static final int TYPE = 0;
 
     public ArrayList<OneResult> search(String text) throws Exception{
         // From podcast-code by Shuang
-        LocalQuery query = new LocalQuery(text, this.N);
+        LocalQuery query = new LocalQuery(text, this.N, this.useSynonyms);
         SearchResponse res = Engine.client.search(query);
         ESresponseProcessor resProcessor = new ESresponseProcessor(Engine.client,TYPE);
         ArrayList<OneResult> results = resProcessor.group(res, query);
@@ -101,6 +113,11 @@ public class MainFrame extends JFrame implements ActionListener {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "N needs to be a whole number", "Wrong input", JOptionPane.ERROR_MESSAGE);
             }
+        }
+        else if (ae.getSource() == this.toggleSynonym){
+            this.useSynonyms = !this.useSynonyms;
+            this.toggleSynonym.setText("Synonyms " + (this.useSynonyms ? "enabled" : "disabled") + ", click to change");
+
         }
     }
 }
