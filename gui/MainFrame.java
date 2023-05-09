@@ -76,10 +76,10 @@ public class MainFrame extends JFrame implements ActionListener {
     private static final int GROUPTYPE = 0;
 
     public ArrayList<OneResult> search(String text) throws Exception{
-        if(this.N == 1 && this.useSynonyms) {
+        /*if(this.N == 1 && this.useSynonyms) {
             JOptionPane.showMessageDialog(null, "Searching while N = 1 not searchable with synonym search due to indexing");
             return new ArrayList<>();
-        }
+        }*/
         // From podcast-code by Shuang
         LocalQuery query = new LocalQuery(text, this.N, this.useSynonyms);
         ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(Engine.client,GROUPTYPE);
