@@ -22,8 +22,8 @@ import java.util.HashMap;
  * Unit test for simple App.
  */
 public class EngineTest{
-    public static HashMap<String, ArrayList<TestLabel>> readListFile(String filename){
-        HashMap<String, ArrayList<TestLabel>> result = new HashMap<>();
+    public static HashMap<String, HashMap<String,Integer>> readListFile(String filename){
+        HashMap<String, HashMap<String,Integer>> result = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = reader.readLine();
@@ -31,16 +31,16 @@ public class EngineTest{
 //                System.out.println(line);
                 String[] words = line.split("(\\s+|\t)");
                 if(!result.containsKey(words[0])){
-                    ArrayList<TestLabel> oneResult = new ArrayList<>();
+                    HashMap<String,Integer> oneResult = new HashMap<>();
                     try{
-                        oneResult.add(new TestLabel(words[2].split(":")[2],Double.parseDouble(words[3])));
+                        oneResult.put(words[2].split(":")[2],Integer.parseInt(words[3]));
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                     result.put(words[0],oneResult);
                 }
                 else{
-                    result.get(words[0]).add(new TestLabel(words[2].split(":")[2],Double.parseDouble(words[3])));
+                    result.get(words[0]).put(words[2].split(":")[2],Integer.parseInt(words[3]));
                 }
                 line = reader.readLine();
 
@@ -90,14 +90,14 @@ public class EngineTest{
         ArrayList<TestCase> testCases = readXmlFile(queryFileName1);
         ArrayList<TestCase> testCases2 = readXmlFile(queryFileName2);
         testCases.addAll(testCases2);
-        HashMap<String, ArrayList<TestLabel>> labels = readListFile(labelFileName1);
-        HashMap<String, ArrayList<TestLabel>> labels2 = readListFile(labelFileName2);
+        HashMap<String, HashMap<String,Integer>> labels = readListFile(labelFileName1);
+        HashMap<String, HashMap<String,Integer>> labels2 = readListFile(labelFileName2);
         labels.putAll(labels2);
         String host = "20.223.162.103";
         int port  = 9200;
         int groupType = 0;
         ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
-        String fileName = "ndcg1.txt";
+        String fileName = "ndcg2.txt";
         try {
             FileWriter writer = new FileWriter(fileName);
             for(TestCase testCase:testCases){
@@ -113,16 +113,11 @@ public class EngineTest{
                     rankedResults.add(newName);
                     writer.write(testCase.num+" "+newName+"\n");
                 }
-                ArrayList<TestLabel> correctSegments = labels.get(testCase.num);
+                HashMap<String,Integer> correctSegments = labels.get(testCase.num);
                 if(correctSegments==null){
                     continue;
                 }
-                Collections.sort(correctSegments,Collections.reverseOrder());
-                ArrayList<String> correctResults = new ArrayList<>();
-                for(TestLabel testLabel:correctSegments){
-                    correctResults.add(testLabel.segId);
-                }
-                double ndcg = NDCG.compute(rankedResults,correctResults);
+                double ndcg = NDCG.compute(rankedResults,correctSegments);
                 System.out.println(testCase.num);
                 System.out.println(ndcg);
                 writer.write(testCase.num+" "+ndcg+"\n");
