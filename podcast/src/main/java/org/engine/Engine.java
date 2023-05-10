@@ -22,15 +22,15 @@ public class Engine {
         Collections.sort(results,Collections.reverseOrder());
     }
 
-//    public static void main(String[] args ){
-//        String host = "20.223.162.103";
-//        int port  = 9200;
-//        int groupType = 1;
-//        ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
-//        LocalQuery query = new LocalQuery("coronavirus spread",2);
-//        ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
-//        ArrayList<OneResult> results = eSresponseProcessor.group(query);
-//        Collections.sort(results,Collections.reverseOrder());
-//    }
+    public static void main(String[] args ){
+        String host = "20.223.162.103";
+        int port  = 9200;
+        int groupType = 1;
+        ElasticSearchClient elasticSearchClient = new ElasticSearchClient(host,port);
+        LocalQuery query = new LocalQuery("sci-fi author interview mars",2,false);
+        ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
+        ArrayList<OneResult> results = eSresponseProcessor.group(query);
+        Collections.sort(results,Collections.reverseOrder());
+    }
 
 }

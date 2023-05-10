@@ -75,7 +75,7 @@ public class MainFrame extends JFrame implements ActionListener {
         });
     }
 
-    private static final int GROUPTYPE = 0;
+    private static final int GROUPTYPE = 2;
 
     public ArrayList<OneResult> search(String text) throws Exception{
         /*if(this.N == 1 && this.useSynonyms) {

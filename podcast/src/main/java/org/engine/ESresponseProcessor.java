@@ -76,7 +76,10 @@ public class ESresponseProcessor {
 
     public Tuple<Float, Float> getSegmentTimes(GetResponse getResponse){
         Map<String,Object> sourceMap = getResponse.getSourceAsMap();
-        String transcript = (String) sourceMap.get("transcript");
+        if (sourceMap==null){
+            return null;
+        }
+//        String transcript = (String) sourceMap.get("transcript");
         ArrayList<HashMap> words = (ArrayList<HashMap>) sourceMap.get("words");
         String startTimeStr = words.get(0).get("startTime").toString();
         String endTimeStr = words.get(words.size()-1).get("endTime").toString();
@@ -201,9 +204,9 @@ public class ESresponseProcessor {
             }
             while ((halfNeedSeconds > 0)&&(lastSegid>0)) {
                 GetResponse lastResponse = ESclient.getTranscript(index, oneTranscriptSegment.docId, lastSegid);
-                Tuple<Float, Float> segTimes = getSegmentTimes(lastResponse);
-                double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
-                if (lastResponse != null) {
+                if (lastResponse.getSourceAsMap() != null) {
+                    Tuple<Float, Float> segTimes = getSegmentTimes(lastResponse);
+                    double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
                     if (halfNeedSeconds < segLength) {
                         OneTranscriptSegment smallerSegment = getSmallerSegment(lastResponse, halfNeedSeconds, "end");
                         transcripts.append(smallerSegment.transcript);
@@ -225,9 +228,9 @@ public class ESresponseProcessor {
             halfNeedSeconds = needSeconds / 2;
             while (halfNeedSeconds > 0) {
                 GetResponse nextResponse = ESclient.getTranscript(index,oneTranscriptSegment.docId, nextSegid);
-                Tuple<Float, Float> segTimes = getSegmentTimes(nextResponse);
-                double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
-                if (nextResponse != null) {
+                if (nextResponse.getSourceAsMap()!= null) {
+                    Tuple<Float, Float> segTimes = getSegmentTimes(nextResponse);
+                    double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
                     if (halfNeedSeconds < segLength) {
                         OneTranscriptSegment smallerSegment = getSmallerSegment(nextResponse, halfNeedSeconds, "start");
                         transcripts.append(smallerSegment.transcript);
@@ -252,9 +255,9 @@ public class ESresponseProcessor {
             transcripts.append(oneTranscriptSegment.transcript);
             while (halfNeedSeconds > 0) {
                 GetResponse nextResponse = ESclient.getTranscript(index, oneTranscriptSegment.docId, nextSegid);
-                Tuple<Float, Float> segTimes = getSegmentTimes(nextResponse);
-                double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
-                if (nextResponse != null) {
+                if (nextResponse.getSourceAsMap()!= null) {
+                    Tuple<Float, Float> segTimes = getSegmentTimes(nextResponse);
+                    double segLength = Math.ceil(segTimes.v2() - segTimes.v1());
                     if (halfNeedSeconds < segLength) {
                         OneTranscriptSegment smallerSegment = getSmallerSegment(nextResponse, halfNeedSeconds, "start");
                         transcripts.append(smallerSegment.transcript);

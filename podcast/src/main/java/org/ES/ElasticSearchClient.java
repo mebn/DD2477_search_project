@@ -55,7 +55,7 @@ public class ElasticSearchClient {
             queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
         }
         searchSourceBuilder.query(queryBuilder);
-        searchSourceBuilder.size(1000);
+        searchSourceBuilder.size(10);
         searchRequest.source(searchSourceBuilder);
         try {
             searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
