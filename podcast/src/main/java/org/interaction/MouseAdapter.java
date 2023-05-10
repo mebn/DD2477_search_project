@@ -9,7 +9,8 @@ public class MouseAdapter implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         ResultLabel source = (ResultLabel) e.getSource();
-        JOptionPane.showMessageDialog(null, source.result.getTranscript());
+        /*JOptionPane.showMessageDialog(null, source.result.getTranscript());*/
+        DetailedResultsFrame frame = new DetailedResultsFrame(source.result);
     }
 
     @Override

@@ -48,8 +48,12 @@ public class ElasticSearchClient {
 //        searchRequest.indices("episodes_2min");
 //        searchRequest.indices("episodes");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-//        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript").analyzer("my_analyzer");
-        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
+        QueryBuilder queryBuilder;
+        if(query.useSynonyms()) {
+            queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript").analyzer("my_analyzer");
+        } else {
+            queryBuilder = QueryBuilders.multiMatchQuery(query.getQuery()).field("transcript");
+        }
         searchSourceBuilder.query(queryBuilder);
         searchSourceBuilder.size(1000);
         searchRequest.source(searchSourceBuilder);

@@ -35,4 +35,29 @@ public class OneResult implements Comparable<OneResult>{
     public Object getTranscript() {
         return transcript;
     }
+
+    @Override
+    public String toString() {
+        return docName + " " + episodeName + " " + timeFormat(startTime) + "-" + timeFormat(endTime);
+    }
+
+    private String timeFormat(float time) {
+        String timeStr;
+        int minutes = (int)(time / 60.0);
+        int seconds = (int)(time % 60.0);
+
+        if(minutes < 10) {
+            timeStr = "0" + minutes + ":";
+        }
+
+        else
+            timeStr = minutes + ":";
+
+        if(seconds < 10)
+            timeStr += "0" + seconds;
+        else
+            timeStr += Integer.toString(seconds);
+
+        return timeStr;
+    }
 }
