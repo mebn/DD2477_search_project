@@ -345,7 +345,7 @@ public class ESresponseProcessor {
             double score = 0;
             HashMap<Tuple<Integer,Integer>,ArrayList<OneTranscriptSegment>> boundMap = new HashMap<>();
             for(OneTranscriptSegment oneTranscriptSegment:oneTranscriptSegments){
-                int leftBound = (int) oneTranscriptSegment.startTime/60;
+                int leftBound = (int) oneTranscriptSegment.startTime/60*60;
                 int rightBound = leftBound+seconds;
                 Tuple<Integer,Integer> bound = new Tuple<Integer,Integer>(leftBound,rightBound);
                 if (!boundMap.containsKey(bound)){
