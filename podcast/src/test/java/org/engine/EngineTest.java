@@ -101,7 +101,7 @@ public class EngineTest{
         try {
             FileWriter writer = new FileWriter(fileName);
             for(TestCase testCase:testCases){
-                LocalQuery query = new LocalQuery(testCase.query,2);
+                LocalQuery query = new LocalQuery(testCase.query,2, false);
                 SearchResponse searchResponse = elasticSearchClient.search("episodes_2min",query);
                 ESresponseProcessor eSresponseProcessor = new ESresponseProcessor(elasticSearchClient,groupType);
                 ArrayList<OneTranscriptSegment> results = eSresponseProcessor.groupFix(searchResponse,query);
