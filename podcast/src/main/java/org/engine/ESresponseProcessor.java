@@ -108,6 +108,12 @@ public class ESresponseProcessor {
         double segLength = Math.floor(segTimes.v2() - segTimes.v1());
         if(Objects.equals(part, "start")){
             midIndex = (int) (0+Math.floor(seconds/segLength*words.size()-1));
+            if(midIndex<0){
+                midIndex=0;
+            }
+            if(midIndex>=words.size()){
+                midIndex=words.size()-1;
+            }
             String midTimeString = words.get(midIndex).get("endTime").toString();
             midTime = Float.parseFloat(midTimeString.substring(0,midTimeString.length()-1));
             if(Math.abs((midTime-startTime)-seconds)>1){
@@ -139,6 +145,12 @@ public class ESresponseProcessor {
         }
         if(Objects.equals(part, "end")){
             midIndex = (int) (0+Math.floor(seconds/segLength*words.size()-1));
+            if(midIndex<0){
+                midIndex=0;
+            }
+            if(midIndex>=words.size()){
+                midIndex=words.size()-1;
+            }
             String midTimeString = words.get(midIndex).get("endTime").toString();
             midTime = Float.parseFloat(midTimeString.substring(0,midTimeString.length()-1));
             if(Math.abs((endTime-midTime)-seconds)>1){
@@ -199,8 +211,8 @@ public class ESresponseProcessor {
                 nextEndTime += halfNeedSeconds;
             }
             else{
-                lastStartTime = 0;
                 nextEndTime += halfNeedSeconds+(halfNeedSeconds-lastStartTime);
+                lastStartTime = 0;
             }
             while ((halfNeedSeconds > 0)&&(lastSegid>0)) {
                 GetResponse lastResponse = ESclient.getTranscript(index, oneTranscriptSegment.docId, lastSegid);
