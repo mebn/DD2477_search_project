@@ -1,12 +1,13 @@
 # DD2477_project
 
 ## How to run
-TLDR; follow [this](#gui).
+TLDR; follow [this](#start-the-search-engine-project).
 
 ### Indexing
-Indexing is already done. No need to reindex since it takes a loooong time.
+Indexing is already done. Note, indexing takes a loooong time.
 
-1. no, don't do this
+You can get the complete indexing [here](https://hub.docker.com/r/mebn/elasticsearch_podcast) or do it yourself.
+
 1. Download the Spotify data files
 1. have a local Elasticsearch docker container up and running
 1. Update information inside the CONFIG block in `index.py`
